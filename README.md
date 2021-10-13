@@ -9,7 +9,7 @@ Terraform project for account security baseline. Include this module in your pro
 
 ```hcl
 module "security-baseline" {
-  source = "git:https://github.com/fortunecookiezen/aws-tf-account-security.git"
+  source = "git::https://github.com/fortunecookiezen/aws-tf-account-security.git"
 }
 
 ```
