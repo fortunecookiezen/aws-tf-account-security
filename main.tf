@@ -97,6 +97,10 @@ resource "aws_s3_bucket_policy" "guardduty" {
     ]
   })
 }
+resource "aws_kms_alias" "security_key" {
+  name          = "alias/security-key"
+  target_key_id = aws_kms_key.security.key_id
+}
 resource "aws_kms_key" "security" {
   description             = "Security ${data.aws_region.current.name} Ecryption Key"
   deletion_window_in_days = 30
