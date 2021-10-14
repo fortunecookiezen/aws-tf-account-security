@@ -27,7 +27,7 @@ resource "aws_accessanalyzer_analyzer" "analyzer" {
   type          = "ACCOUNT"
 }
 resource "aws_ebs_encryption_by_default" "this" {
-  count   = data.aws_ebs_encryption_by_default.current.enabled ? 1 : 0
+  count   = data.aws_ebs_encryption_by_default.current.enabled ? 0 : 1
   enabled = true
 }
 # GuardDuty findings bucket
