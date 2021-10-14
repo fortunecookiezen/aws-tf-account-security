@@ -6,9 +6,11 @@ terraform {
     }
   }
 }
+# discovered data resources to make configuration easier
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 data "aws_guardduty_detector" "account" {}
+data "aws_ebs_encryption_by_default" "current" {}
 # Account Password Policy
 resource "aws_iam_account_password_policy" "policy" {
   minimum_password_length        = 16
@@ -20,8 +22,13 @@ resource "aws_iam_account_password_policy" "policy" {
 }
 # Account-scope Access Analyzer
 resource "aws_accessanalyzer_analyzer" "analyzer" {
+  count         = var.create_access_analyzer ? 1 : 0
   analyzer_name = var.account_alias
   type          = "ACCOUNT"
+}
+resource "aws_ebs_encryption_by_default" "this" {
+  count   = data.aws_ebs_encryption_by_default.enabled ? 0 : 1
+  enabled = true
 }
 # GuardDuty findings bucket
 resource "aws_s3_bucket" "guardduty" {
