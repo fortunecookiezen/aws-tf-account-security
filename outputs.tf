@@ -1,3 +1,3 @@
 output "ebs_encryption_by_default" {
-  value = data.ebs_encryption_by_default.current.enabled
+  value = data.aws_ebs_encryption_by_default.current.enabled
 }
