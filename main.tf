@@ -30,6 +30,13 @@ resource "aws_ebs_encryption_by_default" "this" {
   count   = data.aws_ebs_encryption_by_default.current.enabled ? 0 : 1
   enabled = true
 }
+resource "aws_s3_account_public_access_block" "example" {
+  count                   = var.create_s3_public_access_block ? 1 : 0
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
 # GuardDuty findings bucket
 resource "aws_s3_bucket" "guardduty" {
   bucket = "guardduty-findings-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
