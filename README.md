@@ -9,7 +9,8 @@ Terraform project for account security baseline. Include this module in your pro
 
 ```hcl
 module "security-baseline" {
-  source = "git::https://github.com/fortunecookiezen/aws-tf-account-security.git"
+  source        = "github.com/fortunecookiezen/aws-tf-account-security"
+  account_alias = "my-account-alias"
 }
 
 ```
@@ -32,14 +33,18 @@ No modules.
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_account_alias"></a> [account\_alias](#input\_account\_alias) | n/a | `string` | n/a | yes |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [aws_accessanalyzer_analyzer.analyzer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/accessanalyzer_analyzer) | resource |
 | [aws_guardduty_publishing_destination.account](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/guardduty_publishing_destination) | resource |
 | [aws_iam_account_password_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_account_password_policy) | resource |
+| [aws_kms_alias.security_key](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_alias) | resource |
 | [aws_kms_key.security](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_s3_bucket.guardduty](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_policy.guardduty](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
