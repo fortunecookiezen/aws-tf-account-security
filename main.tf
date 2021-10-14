@@ -18,6 +18,11 @@ resource "aws_iam_account_password_policy" "policy" {
   require_symbols                = true
   allow_users_to_change_password = true
 }
+# Account-scope Access Analyzer
+resource "aws_accessanalyzer_analyzer" "analyzer" {
+  analyzer_name = var.account_alias
+  type          = "ACCOUNT"
+}
 # GuardDuty findings bucket
 resource "aws_s3_bucket" "guardduty" {
   bucket = "guardduty-findings-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
