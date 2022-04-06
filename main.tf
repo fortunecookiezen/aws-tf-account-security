@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 3.60.0"
+      version = ">= 4.0"
     }
   }
 }
@@ -40,23 +40,27 @@ resource "aws_s3_account_public_access_block" "example" {
 # GuardDuty findings bucket
 resource "aws_s3_bucket" "guardduty" {
   bucket = "guardduty-findings-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
-  acl    = "private"
+  # acl    = "private"
 
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        sse_algorithm     = "aws:kms"
-        kms_master_key_id = aws_kms_key.security.id
-      }
-    }
-  }
+  # server_side_encryption_configuration {
+  #   rule {
+  #     apply_server_side_encryption_by_default {
+  #       sse_algorithm     = "aws:kms"
+  #       kms_master_key_id = aws_kms_key.security.id
+  #     }
+  #   }
+  # }
   tags = {
     LastUpdatedBy = data.aws_caller_identity.current.user_id
     # LastUpdate    = formatdate("MMM DD YYYY hh:mm ZZZ", timestamp())
   }
-  versioning {
-    enabled = true
-  }
+  # versioning {
+  #   enabled = true
+  # }
+}
+resource "aws_s3_bucket_acl" "guardduty" {
+  bucket = aws_s3_bucket.guardduty.id
+  acl    = "private"
 }
 resource "aws_s3_bucket_public_access_block" "guardduty" {
   bucket                  = aws_s3_bucket.guardduty.id
@@ -115,6 +119,22 @@ resource "aws_s3_bucket_policy" "guardduty" {
       }
     ]
   })
+}
+resource "aws_s3_bucket_server_side_encryption_configuration" "guardduty" {
+  bucket = aws_s3_bucket.guardduty.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.security.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+resource "aws_s3_bucket_versioning" "guardduty" {
+  bucket = aws_s3_bucket.guardduty.id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 resource "aws_kms_alias" "security_key" {
   name          = "alias/security-key"
