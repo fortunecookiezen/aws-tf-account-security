@@ -20,7 +20,7 @@ resource "aws_iam_account_password_policy" "policy" {
   require_uppercase_characters   = true
   require_symbols                = true
   allow_users_to_change_password = true
-  password_reuse_prevention      = 8
+  password_reuse_prevention      = var.password_history
 }
 # Account-scope Access Analyzer
 resource "aws_accessanalyzer_analyzer" "analyzer" {
@@ -39,8 +39,9 @@ resource "aws_s3_account_public_access_block" "example" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-# GuardDuty findings bucket
+# GuardDuty findings bucket, we don't log access to this.
 resource "aws_s3_bucket" "guardduty" {
+  #tfsec:ignore:aws-s3-enable-bucket-logging
   bucket = "guardduty-findings-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
   tags = {
     LastUpdatedBy = data.aws_caller_identity.current.user_id

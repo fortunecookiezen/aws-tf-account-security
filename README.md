@@ -38,11 +38,11 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_account_alias"></a> [account\_alias](#input\_account\_alias) | n/a | `string` | n/a | yes |
-| <a name="input_create_access_analyzer"></a> [create\_access\_analyzer](#input\_create\_access\_analyzer) | n/a | `bool` | `true` | no |
-| <a name="input_create_s3_public_access_block"></a> [create\_s3\_public\_access\_block](#input\_create\_s3\_public\_access\_block) | n/a | `bool` | `true` | no |
+| <a name="input_account_alias"></a> [account\_alias](#input\_account\_alias) | account metadata friendly name for the aws account | `string` | n/a | yes |
+| <a name="input_create_access_analyzer"></a> [create\_access\_analyzer](#input\_create\_access\_analyzer) | create iam access analyzer, defaults to true | `bool` | `true` | no |
+| <a name="input_create_s3_public_access_block"></a> [create\_s3\_public\_access\_block](#input\_create\_s3\_public\_access\_block) | create account-level s3 public access block, defaults to true, no longer really required since aws updated their default behavior | `bool` | `true` | no |
 | <a name="input_max_password_age"></a> [max\_password\_age](#input\_max\_password\_age) | maximum password age allowed | `number` | `90` | no |
-| <a name="input_minimum_password_length"></a> [minimum\_password\_length](#input\_minimum\_password\_length) | minimum allowed length of password | `number` | `8` | no |
+| <a name="input_minimum_password_length"></a> [minimum\_password\_length](#input\_minimum\_password\_length) | minimum allowed length of password | `number` | `14` | no |
 | <a name="input_password_history"></a> [password\_history](#input\_password\_history) | number of previous passwords retained in history to prevent reuse of passwords | `number` | `8` | no |
 
 ## Resources
