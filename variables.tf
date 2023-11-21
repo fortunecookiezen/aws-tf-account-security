@@ -19,7 +19,7 @@ variable "minimum_password_length" {
   default     = 8
   description = "minimum allowed length of password"
 }
-variable "password_reuse_prevention" {
+variable "password_history" {
   type        = number
   default     = 8
   description = "number of previous passwords retained in history to prevent reuse of passwords"

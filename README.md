@@ -9,10 +9,12 @@ Terraform project for account security baseline. Include this module in your pro
 
 ```hcl
 module "security-baseline" {
-  source                        = "github.com/fortunecookiezen/aws-tf-account-security?ref=v2.0"
+  source                        = "github.com/fortunecookiezen/aws-tf-account-security"
   account_alias                 = "my-account-alias"
   create_access_analyzer        = true
   create_s3_public_access_block = true
+  minimum_password_length       = 16
+  password_history              = 8
 }
 ```
 
@@ -20,7 +22,7 @@ module "security-baseline" {
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
 
 ## Providers
 
@@ -39,6 +41,9 @@ No modules.
 | <a name="input_account_alias"></a> [account\_alias](#input\_account\_alias) | n/a | `string` | n/a | yes |
 | <a name="input_create_access_analyzer"></a> [create\_access\_analyzer](#input\_create\_access\_analyzer) | n/a | `bool` | `true` | no |
 | <a name="input_create_s3_public_access_block"></a> [create\_s3\_public\_access\_block](#input\_create\_s3\_public\_access\_block) | n/a | `bool` | `true` | no |
+| <a name="input_max_password_age"></a> [max\_password\_age](#input\_max\_password\_age) | maximum password age allowed | `number` | `90` | no |
+| <a name="input_minimum_password_length"></a> [minimum\_password\_length](#input\_minimum\_password\_length) | minimum allowed length of password | `number` | `8` | no |
+| <a name="input_password_history"></a> [password\_history](#input\_password\_history) | number of previous passwords retained in history to prevent reuse of passwords | `number` | `8` | no |
 
 ## Resources
 
@@ -52,7 +57,6 @@ No modules.
 | [aws_kms_key.security](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_s3_account_public_access_block.example](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_account_public_access_block) | resource |
 | [aws_s3_bucket.guardduty](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
-| [aws_s3_bucket_acl.guardduty](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
 | [aws_s3_bucket_policy.guardduty](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
 | [aws_s3_bucket_public_access_block.guardduty](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
 | [aws_s3_bucket_server_side_encryption_configuration.guardduty](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
