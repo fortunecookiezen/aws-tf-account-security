@@ -13,12 +13,14 @@ data "aws_guardduty_detector" "account" {}
 data "aws_ebs_encryption_by_default" "current" {}
 # Account Password Policy
 resource "aws_iam_account_password_policy" "policy" {
-  minimum_password_length        = 16
+  max_password_age               = var.max_password_age
+  minimum_password_length        = var.minimum_password_length
   require_lowercase_characters   = true
   require_numbers                = true
   require_uppercase_characters   = true
   require_symbols                = true
   allow_users_to_change_password = true
+  password_reuse_prevention      = 8
 }
 # Account-scope Access Analyzer
 resource "aws_accessanalyzer_analyzer" "analyzer" {
