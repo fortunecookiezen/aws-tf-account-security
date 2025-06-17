@@ -9,12 +9,18 @@ Terraform project for account security baseline. Include this module in your pro
 
 ```hcl
 module "security-baseline" {
-  source                        = "github.com/fortunecookiezen/aws-tf-account-security"
-  account_alias                 = "my-account-alias"
-  create_access_analyzer        = true
-  create_s3_public_access_block = true
-  minimum_password_length       = 16
-  password_history              = 8
+  source                            = "github.com/fortunecookiezen/aws-tf-account-security"
+  account_alias                     = "my-account-alias"
+  create_access_analyzer            = true
+  create_s3_public_access_block     = true
+  ebs_snapshot_block_all_sharing    = true
+  aws_ec2_image_block_public_access = true
+  minimum_password_length           = 16
+  password_history                  = 8
+  vpc_internet_gateway_block_mode   = "off"
+  vpc_block_public_access_exclusion = {
+    "vpc-0f54aefb63f391295" = "allow-egress"
+  }
 }
 ```
 
@@ -56,7 +62,6 @@ No modules.
 |------|------|
 | [aws_accessanalyzer_analyzer.analyzer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/accessanalyzer_analyzer) | resource |
 | [aws_ebs_encryption_by_default.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_encryption_by_default) | resource |
-| [aws_ebs_snapshot_block_public_access.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_snapshot_block_public_access) | resource |
 | [aws_ec2_image_block_public_access.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_image_block_public_access) | resource |
 | [aws_guardduty_publishing_destination.account](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/guardduty_publishing_destination) | resource |
 | [aws_iam_account_password_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_account_password_policy) | resource |

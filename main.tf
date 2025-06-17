@@ -35,9 +35,10 @@ resource "aws_ebs_encryption_by_default" "this" {
   count   = data.aws_ebs_encryption_by_default.current.enabled ? 0 : 1
   enabled = true
 }
-resource "aws_ebs_snapshot_block_public_access" "this" {
-  state = var.ebs_snapshot_block_all_sharing ? "block-all-sharing" : "unblocked"
-}
+# resource "aws_ebs_snapshot_block_public_access" "this" {
+#   count = var.ebs_snapshot_block_all_sharing ? 1 : 0
+#   state = "block-all-sharing"
+# }
 # Prevent making AMIs publicly accessible in the region and account for which the provider is configured
 resource "aws_ec2_image_block_public_access" "this" {
   state = var.aws_ec2_image_block_public_access ? "block-new-sharing" : "unblocked"
@@ -57,6 +58,7 @@ resource "aws_vpc_block_public_access_exclusion" "this" {
   for_each                        = var.vpc_block_public_access_exclusion
   vpc_id                          = each.key
   internet_gateway_exclusion_mode = each.value # "allow-bidirectional" or "allow-egress"
+  tags                            = merge({}, var.tags)
 }
 # GuardDuty findings bucket, we don't log access to this.
 resource "aws_s3_bucket" "guardduty" {
