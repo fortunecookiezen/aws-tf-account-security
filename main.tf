@@ -50,6 +50,7 @@ resource "aws_s3_account_public_access_block" "this" {
   restrict_public_buckets = true
 }
 resource "aws_vpc_block_public_access_options" "this" {
+  count                       = var.vpc_internet_gateway_block_mode != "off" ? 1 : 0
   internet_gateway_block_mode = var.vpc_internet_gateway_block_mode # block-bidrectional, "block-ingress", or "off"
 }
 resource "aws_vpc_block_public_access_exclusion" "this" {
