@@ -27,25 +27,43 @@ resource "aws_accessanalyzer_analyzer" "analyzer" {
   count         = var.create_access_analyzer ? 1 : 0
   analyzer_name = var.account_alias
   type          = "ACCOUNT"
+  tags = merge({
+    Name = "Access Analyzer"
+  }, var.tags)
 }
 resource "aws_ebs_encryption_by_default" "this" {
   count   = data.aws_ebs_encryption_by_default.current.enabled ? 0 : 1
   enabled = true
 }
-resource "aws_s3_account_public_access_block" "example" {
+resource "aws_ebs_snapshot_block_public_access" "this" {
+  state = var.ebs_snapshot_block_all_sharing ? "block-all-sharing" : "unblocked"
+}
+# Prevent making AMIs publicly accessible in the region and account for which the provider is configured
+resource "aws_ec2_image_block_public_access" "this" {
+  state = var.aws_ec2_image_block_public_access ? "block-new-sharing" : "unblocked"
+}
+resource "aws_s3_account_public_access_block" "this" {
   count                   = var.create_s3_public_access_block ? 1 : 0
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+resource "aws_vpc_block_public_access_options" "this" {
+  internet_gateway_block_mode = var.vpc_internet_gateway_block_mode # block-bidrectional, "block-ingress", or "off"
+}
+resource "aws_vpc_block_public_access_exclusion" "this" {
+  for_each                        = var.vpc_block_public_access_exclusion
+  vpc_id                          = each.key
+  internet_gateway_exclusion_mode = each.value # "allow-bidirectional" or "allow-egress"
+}
 # GuardDuty findings bucket, we don't log access to this.
 resource "aws_s3_bucket" "guardduty" {
   #tfsec:ignore:aws-s3-enable-bucket-logging
   bucket = "guardduty-findings-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
-  tags = {
-    LastUpdatedBy = data.aws_caller_identity.current.user_id
-  }
+  tags = merge({
+    Name = "GuardDuty Findings Bucket"
+  }, var.tags)
 }
 
 resource "aws_s3_bucket_public_access_block" "guardduty" {
@@ -130,9 +148,9 @@ resource "aws_kms_key" "security" {
   description             = "Security ${data.aws_region.current.name} Ecryption Key"
   deletion_window_in_days = 30
   enable_key_rotation     = true
-  tags = {
-    LastUpdatedBy = data.aws_caller_identity.current.user_id
-  }
+  tags = merge({
+    Name = "Security Key"
+  }, var.tags)
   policy = jsonencode({
     Version = "2012-10-17"
     Id      = "SecurityKeyPolicy"
