@@ -35,10 +35,10 @@ resource "aws_ebs_encryption_by_default" "this" {
   count   = data.aws_ebs_encryption_by_default.current.enabled ? 0 : 1
   enabled = true
 }
-# resource "aws_ebs_snapshot_block_public_access" "this" {
-#   count = var.ebs_snapshot_block_all_sharing ? 1 : 0
-#   state = "block-all-sharing"
-# }
+resource "aws_ebs_snapshot_block_public_access" "this" {
+  count = var.ebs_snapshot_block_public_access ? 1 : 0
+  state = "block-all-sharing"
+}
 # Prevent making AMIs publicly accessible in the region and account for which the provider is configured
 resource "aws_ec2_image_block_public_access" "this" {
   state = var.aws_ec2_image_block_public_access ? "block-new-sharing" : "unblocked"

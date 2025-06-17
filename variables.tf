@@ -12,7 +12,7 @@ variable "create_s3_public_access_block" {
   default     = true
   description = "create account-level s3 public access block, defaults to true, no longer really required since aws updated their default behavior"
 }
-variable "ebs_snapshot_block_all_sharing" {
+variable "ebs_snapshot_block_public_access" {
   type        = bool
   default     = true
   description = "block all sharing of ebs snapshots, defaults to true"

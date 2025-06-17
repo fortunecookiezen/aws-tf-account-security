@@ -48,7 +48,7 @@ No modules.
 | <a name="input_aws_ec2_image_block_public_access"></a> [aws\_ec2\_image\_block\_public\_access](#input\_aws\_ec2\_image\_block\_public\_access) | block public access to ec2 images, defaults to true | `bool` | `true` | no |
 | <a name="input_create_access_analyzer"></a> [create\_access\_analyzer](#input\_create\_access\_analyzer) | create iam access analyzer, defaults to true | `bool` | `true` | no |
 | <a name="input_create_s3_public_access_block"></a> [create\_s3\_public\_access\_block](#input\_create\_s3\_public\_access\_block) | create account-level s3 public access block, defaults to true, no longer really required since aws updated their default behavior | `bool` | `true` | no |
-| <a name="input_ebs_snapshot_block_all_sharing"></a> [ebs\_snapshot\_block\_all\_sharing](#input\_ebs\_snapshot\_block\_all\_sharing) | block all sharing of ebs snapshots, defaults to true | `bool` | `true` | no |
+| <a name="input_ebs_snapshot_block_public_access"></a> [ebs\_snapshot\_block\_public\_access](#input\_ebs\_snapshot\_block\_public\_access) | block all sharing of ebs snapshots, defaults to true | `bool` | `true` | no |
 | <a name="input_max_password_age"></a> [max\_password\_age](#input\_max\_password\_age) | maximum password age allowed | `number` | `90` | no |
 | <a name="input_minimum_password_length"></a> [minimum\_password\_length](#input\_minimum\_password\_length) | minimum allowed length of password | `number` | `14` | no |
 | <a name="input_password_history"></a> [password\_history](#input\_password\_history) | number of previous passwords retained in history to prevent reuse of passwords | `number` | `8` | no |
@@ -62,6 +62,7 @@ No modules.
 |------|------|
 | [aws_accessanalyzer_analyzer.analyzer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/accessanalyzer_analyzer) | resource |
 | [aws_ebs_encryption_by_default.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_encryption_by_default) | resource |
+| [aws_ebs_snapshot_block_public_access.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ebs_snapshot_block_public_access) | resource |
 | [aws_ec2_image_block_public_access.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_image_block_public_access) | resource |
 | [aws_guardduty_publishing_destination.account](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/guardduty_publishing_destination) | resource |
 | [aws_iam_account_password_policy.policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_account_password_policy) | resource |
