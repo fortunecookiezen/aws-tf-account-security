@@ -1,0 +1,20 @@
+name: trivy
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  trivy:
+    name: trivy config scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v7
+      - name: trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: config
+          scan-ref: .
+          exit-code: "0"
