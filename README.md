@@ -31,7 +31,10 @@ This module doesn't delete default VPCs. Instead, the repo includes a script tha
 ./scripts/delete-default-vpcs.sh                  # dry run, the default: shows what would be deleted
 ./scripts/delete-default-vpcs.sh --execute        # deletes after you type the account id to confirm
 ./scripts/delete-default-vpcs.sh --execute --yes  # deletes without a prompt, for automation
+./scripts/delete-default-vpcs.sh --skip-region us-east-1,eu-west-1  # leaves these regions alone
 ```
+
+`--skip-region` takes a comma-separated list and can be repeated. The script stops with an error if a skipped region isn't enabled in the account, so a typo can't delete a VPC you meant to keep.
 
 Before deleting anything, the script skips a default VPC that has network interfaces or anything else that would block deletion (non-default security groups, route tables or network ACLs, VPC endpoints, or an attached VPN gateway). It also skips regions it can't query, such as regions denied by an SCP. It exits non-zero only if a deletion fails partway through.
 

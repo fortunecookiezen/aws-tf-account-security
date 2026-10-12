@@ -12,11 +12,15 @@
 # other resource that would block deletion: non-default security groups,
 # route tables or network ACLs, VPC endpoints, or an attached VPN gateway.
 # Regions that can't be queried (for example, denied by an SCP) are skipped.
+# Regions passed with --skip-region are left alone; an unknown or disabled
+# region name is an error, so a typo can't delete a VPC you meant to keep.
 #
 # Usage:
 #   ./scripts/delete-default-vpcs.sh            # dry run: shows what would be deleted
 #   ./scripts/delete-default-vpcs.sh --execute  # deletes, after confirmation
 #   ./scripts/delete-default-vpcs.sh --execute --yes  # deletes, no prompt
+#   ./scripts/delete-default-vpcs.sh --skip-region us-east-1,eu-west-1  # leave these regions alone
+#   ./scripts/delete-default-vpcs.sh --skip-region us-east-1 --skip-region eu-west-1  # same, repeated
 #
 # Pass credentials the usual way (AWS_PROFILE, environment variables, SSO).
 # A deleted default VPC can be recreated with: aws ec2 create-default-vpc --region <region>
@@ -27,29 +31,59 @@ set -euo pipefail
 
 EXECUTE=false
 ASSUME_YES=false
+SKIP_REGIONS=""
 
 usage() {
   sed -n '2,/^# --- end of help ---$/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'
   exit "${1:-0}"
 }
 
-for arg in "$@"; do
-  case "$arg" in
+add_skip_regions() {
+  [[ -n "$1" ]] || { echo "--skip-region requires a region" >&2; usage 1; }
+  SKIP_REGIONS="$SKIP_REGIONS ${1//,/ }"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
     --execute) EXECUTE=true ;;
     --yes|-y)  ASSUME_YES=true ;;
+    --skip-region) add_skip_regions "${2:-}"; shift ;;
+    --skip-region=*) add_skip_regions "${1#*=}" ;;
     -h|--help) usage 0 ;;
-    *) echo "Unknown argument: $arg" >&2; usage 1 ;;
+    *) echo "Unknown argument: $1" >&2; usage 1 ;;
   esac
+  shift
 done
+
+# space-padded so membership checks can match whole region names (bash 3.2 has no associative arrays)
+is_skipped() {
+  [[ " $SKIP_REGIONS " == *" $1 "* ]]
+}
 
 command -v aws >/dev/null 2>&1 || { echo "aws CLI not found in PATH" >&2; exit 1; }
 
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+# describe-regions needs a region; fall back to us-east-1 when none is configured
+REGIONS=$(aws ec2 describe-regions --region "${AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-1}}" \
+  --filters Name=opt-in-status,Values=opt-in-not-required,opted-in \
+  --query 'Regions[].RegionName' --output text | tr -s '[:space:]' ' ')
+
+for skip in $SKIP_REGIONS; do
+  if [[ " $REGIONS " != *" $skip "* ]]; then
+    echo "Error: --skip-region $skip is not an enabled region in account ${ACCOUNT_ID}" >&2
+    exit 1
+  fi
+done
+
 echo "Account: ${ACCOUNT_ID}"
 if [[ "$EXECUTE" == true ]]; then
   echo "Mode:    EXECUTE (default VPCs will be deleted)"
 else
   echo "Mode:    DRY RUN (pass --execute to delete)"
+fi
+if [[ -n "${SKIP_REGIONS// /}" ]]; then
+  echo "Skip:    $(echo $SKIP_REGIONS)"
 fi
 echo
 
@@ -134,16 +168,16 @@ delete_vpc() {
   run aws ec2 delete-vpc --region "$region" --vpc-id "$vpc_id" || return 1
 }
 
-# describe-regions needs a region; fall back to us-east-1 when none is configured
-REGIONS=$(aws ec2 describe-regions --region "${AWS_REGION:-${AWS_DEFAULT_REGION:-us-east-1}}" \
-  --filters Name=opt-in-status,Values=opt-in-not-required,opted-in \
-  --query 'Regions[].RegionName' --output text)
-
 deleted=0
 skipped=0
 failed=0
 
 for region in $REGIONS; do
+  if is_skipped "$region"; then
+    echo "[$region] skipped by --skip-region"
+    continue
+  fi
+
   if ! vpc_ids=$(aws ec2 describe-vpcs --region "$region" \
       --filters Name=isDefault,Values=true \
       --query 'Vpcs[].VpcId' --output text 2>/dev/null); then
