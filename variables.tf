@@ -119,3 +119,61 @@ variable "tags" {
   default     = {}
   description = "tags to apply to all resources"
 }
+variable "create_unused_access_analyzer" {
+  type        = bool
+  default     = false
+  description = "create an iam access analyzer for unused access. this is a paid feature billed per iam role and user analyzed. ignored when manage_global_resources is false"
+}
+variable "unused_access_age_days" {
+  type        = number
+  default     = 90
+  description = "days without use before the unused access analyzer reports a permission, role, or credential as unused"
+  validation {
+    condition     = var.unused_access_age_days >= 1 && var.unused_access_age_days <= 365
+    error_message = "unused_access_age_days must be between 1 and 365."
+  }
+}
+variable "create_account_alias" {
+  type        = bool
+  default     = false
+  description = "set the iam account alias to account_alias. ignored when manage_global_resources is false"
+}
+variable "security_contact" {
+  type = object({
+    name          = string
+    title         = string
+    email_address = string
+    phone_number  = string
+  })
+  default     = null
+  description = "security alternate contact for the account. defaults to null, which leaves the contact unmanaged, e.g. when it is set from the organization management account. ignored when manage_global_resources is false"
+}
+variable "require_imdsv2" {
+  type        = bool
+  default     = true
+  description = "require imdsv2 for new ec2 instances in this region that don't set their own metadata options"
+}
+variable "imds_hop_limit" {
+  type        = number
+  default     = 2
+  description = "imds put response hop limit default. 2 allows containers on ec2 to reach imdsv2"
+  validation {
+    condition     = var.imds_hop_limit >= 1 && var.imds_hop_limit <= 64
+    error_message = "imds_hop_limit must be between 1 and 64."
+  }
+}
+variable "ssm_block_public_document_sharing" {
+  type        = bool
+  default     = true
+  description = "block public sharing of ssm documents in this region"
+}
+variable "emr_block_public_access" {
+  type        = bool
+  default     = true
+  description = "block emr clusters from launching with security groups that allow public inbound access, with no port exceptions"
+}
+variable "restrict_default_security_group" {
+  type        = bool
+  default     = true
+  description = "remove all ingress and egress rules from the default vpc's default security group. no-op when there is no default vpc"
+}

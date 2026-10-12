@@ -157,3 +157,72 @@ resource "aws_guardduty_publishing_destination" "account" {
     aws_s3_bucket_server_side_encryption_configuration.guardduty,
   ]
 }
+# Unused access analyzer, billed per iam role and user analyzed in each region it is created
+resource "aws_accessanalyzer_analyzer" "unused_access" {
+  count         = var.manage_global_resources && var.create_unused_access_analyzer ? 1 : 0
+  analyzer_name = "${var.account_alias}-unused-access"
+  type          = "ACCOUNT_UNUSED_ACCESS"
+  configuration {
+    unused_access {
+      unused_access_age = var.unused_access_age_days
+    }
+  }
+  tags = merge({
+    Name = "Unused Access Analyzer"
+  }, var.tags)
+}
+# Account alias (global)
+resource "aws_iam_account_alias" "this" {
+  count         = var.manage_global_resources && var.create_account_alias ? 1 : 0
+  account_alias = var.account_alias
+  lifecycle {
+    precondition {
+      condition     = can(regex("^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$", var.account_alias))
+      error_message = "account_alias must be 3-63 lowercase letters, numbers, or hyphens, and must not start or end with a hyphen to be used as the iam account alias."
+    }
+  }
+}
+# Security alternate contact (global)
+resource "aws_account_alternate_contact" "security" {
+  count                  = var.manage_global_resources && var.security_contact != null ? 1 : 0
+  alternate_contact_type = "SECURITY"
+  name                   = var.security_contact.name
+  title                  = var.security_contact.title
+  email_address          = var.security_contact.email_address
+  phone_number           = var.security_contact.phone_number
+}
+# Require IMDSv2 for new instances that don't set their own metadata options
+resource "aws_ec2_instance_metadata_defaults" "this" {
+  count                       = var.require_imdsv2 ? 1 : 0
+  http_tokens                 = "required"
+  http_put_response_hop_limit = var.imds_hop_limit
+}
+# Prevent public sharing of ssm documents
+resource "aws_ssm_service_setting" "document_public_sharing" {
+  count         = var.ssm_block_public_document_sharing ? 1 : 0
+  setting_id    = "arn:${local.partition}:ssm:${local.region}:${local.account_id}:servicesetting/ssm/documents/console/public-sharing-permission"
+  setting_value = "Disable"
+}
+# Block emr clusters with security groups open to the internet, with no port exceptions
+resource "aws_emr_block_public_access_configuration" "this" {
+  count                             = var.emr_block_public_access ? 1 : 0
+  block_public_security_group_rules = true
+}
+# Remove all rules from the default vpc's default security group
+data "aws_vpcs" "default" {
+  count = var.restrict_default_security_group ? 1 : 0
+  filter {
+    name   = "is-default"
+    values = ["true"]
+  }
+}
+resource "aws_default_security_group" "default_vpc" {
+  count  = var.restrict_default_security_group ? length(data.aws_vpcs.default[0].ids) : 0
+  vpc_id = data.aws_vpcs.default[0].ids[count.index]
+  # empty lists, rather than omitting the arguments, make terraform remove rules added outside of terraform
+  ingress = []
+  egress  = []
+  tags = merge({
+    Name = "default - restricted"
+  }, var.tags)
+}
