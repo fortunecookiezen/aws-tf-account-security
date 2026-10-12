@@ -22,3 +22,7 @@ output "access_analyzer_arn" {
   value       = try(aws_accessanalyzer_analyzer.analyzer[0].arn, null)
   description = "arn of the access analyzer, null when not created"
 }
+output "unused_access_analyzer_arn" {
+  value       = try(aws_accessanalyzer_analyzer.unused_access[0].arn, null)
+  description = "arn of the unused access analyzer, null when not created"
+}
