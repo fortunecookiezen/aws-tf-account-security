@@ -1,5 +1,5 @@
 module "security-baseline" {
-  source                                 = "github.com/fortunecookiezen/aws-tf-account-security?ref=v4.0.0"
+  source                                 = "github.com/fortunecookiezen/aws-tf-account-security?ref=v4.1.0"
   account_alias                          = "my-account-alias"
   create_access_analyzer                 = true
   create_s3_public_access_block          = true
@@ -18,7 +18,7 @@ module "security-baseline" {
 
 # second region: regional controls only
 module "security-baseline-us-west-2" {
-  source                  = "github.com/fortunecookiezen/aws-tf-account-security?ref=v4.0.0"
+  source                  = "github.com/fortunecookiezen/aws-tf-account-security?ref=v4.1.0"
   providers               = { aws = aws.us-west-2 }
   account_alias           = "my-account-alias"
   manage_global_resources = false
