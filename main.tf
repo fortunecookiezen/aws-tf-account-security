@@ -219,6 +219,9 @@ data "aws_vpcs" "default" {
 resource "aws_default_security_group" "default_vpc" {
   count  = var.restrict_default_security_group ? length(data.aws_vpcs.default[0].ids) : 0
   vpc_id = data.aws_vpcs.default[0].ids[count.index]
+  # empty lists, rather than omitting the arguments, make terraform remove rules added outside of terraform
+  ingress = []
+  egress  = []
   tags = merge({
     Name = "default - restricted"
   }, var.tags)
